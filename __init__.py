@@ -1,0 +1,1 @@
+"""package containing functions to extract and transform contents from phpbb forums"""
