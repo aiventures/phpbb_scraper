@@ -22,7 +22,9 @@ The scraper consists of the following python modules / Classes:
 
 ## Usage Examples
 A good way to check into functionality is the Jupyter Workbook `PHPBB_SCRAPER_HOWTO_PUBLIC.ipynb`, that explains in code how to use the different functions.
-Documentation of all functions (as of November 2019) was copied to file `phpbb_scraper_api_doc.md` in `doc` folder
+Documentation of all functions (as of November 2019) was copied to file `phpbb_scraper_api_doc.md` in `doc` folder (you can directly open .md folder in GitHub)
+
+Additionally, a minimal example of scraping and saving data is stored in the `doc` subfolder as Jupyter file `PHP_BB_FORUM_READER_EXAMPLE_PUBLIC.ipynb` and for direct read in `PHP_BB_FORUM_READER_EXAMPLE_PUBLIC.md`. In this example, the `ScraperExecutor` class encapsulates all the details, so that all relevant functionality can be called from there.
 
 ## Further help
 Classes, functions, modules should be documented sufficiently. Use `dir(<module>)` or `help(<module>)` to get more information
