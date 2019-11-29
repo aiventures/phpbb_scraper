@@ -45,8 +45,14 @@ def get_link_data_from_soup(soup):
     link_data = []
     if soup == None:
         return [None, None]
-    link_data.append(soup.get('href').strip())
-    link_data.append(soup.text.strip())
+    link = soup.get('href')
+    text = soup.text
+    if link is not None:
+        link = link.strip()
+    if text is not None:
+        text = text.strip()        
+    link_data.append(link)
+    link_data.append(text)
     return link_data
 
 
@@ -456,26 +462,50 @@ def get_topics_from_soup(soup, debug=False, show_soup=False):
                 print("Thread Start Date", thread_start_datetime)
             post_as_dict.append({"Datum": thread_start_datetime, "link": None})
         # get thread starter (contained in 1st link)
-        user_soup = thread_start_soup.find("a")
+        user_soup = thread_start_soup.find("a", {'class':['username', 'username-coloured']})     
+        
         if user_soup is not None:
             user_id, user_name = get_link_data_from_soup(user_soup)
             post_as_dict.append({"Author": user_name, "link": user_id})
             if show_info == True:
                 print("USER", user_id, user_name)
         else:
-            post_as_dict.append({"Author": None, "link": None})
+            user_name = None
+            user_soup_alt = thread_start_soup.find("span", {'class':'username'})     
+            if user_soup_alt is not None:
+                user_name = user_soup_alt.text         
+            post_as_dict.append({"Author": user_name, "link": None})
 
        # <a class="username" href="...">...</a>
-        last_user_soup = last_post_soup.find("a", {"class": "username"})
+        last_user_soup = last_post_soup.find("a", {"class": "username"})             
+        
         if last_user_soup is not None:
             last_user_id, last_user_name = get_link_data_from_soup(
                 last_user_soup)
             post_as_dict.append(
                 {"Author_Aenderung": last_user_name, "link": last_user_id})
             if show_info == True:
-                print("LAST USER", last_user_id, last_user_name)
+                print("LAST USER", last_user_id, last_user_name)            
         else:
-            post_as_dict.append({"Author_Aenderung": None, "link": None})
+            last_user_id = None
+            last_user_name = None
+            
+            if last_post_soup is not None:
+                # cases occurs that last user soup is None, try to extract it from last post soup
+                # span class username for deleted members
+                # span class username coloured for other members
+                uname_colored_soup = last_post_soup.find("a", {"class": "username-coloured"})                
+                uname_simple_soup = last_post_soup.find("span", {"class": "username"})         
+
+                if uname_simple_soup is not None:
+                    last_user_name = uname_simple_soup.text.strip()
+                elif uname_colored_soup is not None:
+                     last_user_id, last_user_name = get_link_data_from_soup(uname_colored_soup)                                     
+                else:
+                    pass
+                                   
+            post_as_dict.append({"Author_Aenderung": last_user_name, "link": last_user_id})
+
 
         last_post_soup_as_str = str(last_post_soup)
         # search for <br> sign in a dedicated row
