@@ -198,11 +198,12 @@ class ScraperExecutor:
         return soup
     
     @classmethod 
-    def get_soups(cls,urls):    
+    def get_soups(cls,urls,num_max_topics=None):    
         """ reads multiple urls in case soup contains number of entries tags and a "start" property, 
             url will not be read. returns a list of dictionary with entry 
             {hash(soup_id):{'url':<url>,'url_hash':<url_hash>,'soup':<soup>,'soup_id':<soup_id>,'date':<date>}} 
             soup_id is concatenation of Date and url hash <JJJJMMDD_HHMMSS>_<url_hash>
+            max_topics will override number of maximum topics to be read
         """
 
         soups = {}
@@ -242,7 +243,11 @@ class ScraperExecutor:
             if first_run is True:
                 soup = scraper.get_data(session=session,url=url)
                 first_run = False
-                num_total_topics = soup_converter.get_num_topics(soup)
+                if num_max_topics is None:
+                    num_total_topics = soup_converter.get_num_topics(soup)
+                else:
+                    num_total_topics = num_max_topics
+
                 if cls.DEBUG is True:
                     print(f"Total number of Topics according to 1st run: {num_total_topics}, date/time: {dt_string}")        
             
@@ -263,7 +268,7 @@ class ScraperExecutor:
         return soups
 
     @classmethod 
-    def retrieve_last_topics(cls,past_days=14,start_num=0,steps_num=2,increment_num=70,file_extension='html',target_dir=None,meta_file=None):
+    def retrieve_last_topics(cls,past_days=14,start_num=0,steps_num=2,increment_num=70,file_extension='html',target_dir=None,meta_file=None,num_max_topics=None):
         """ gets the last topics from forum (across multiple pages) and saves each to an html
             file locally. 
             Parameters (default)
@@ -290,7 +295,7 @@ class ScraperExecutor:
                                                    start=start_num,num_steps=steps_num,
                                                    increment=increment_num,active_topics=True)
         query_urls = list(query_it)                
-        soups = cls.get_soups(query_urls)
+        soups = cls.get_soups(query_urls,num_max_topics)
 
         metadata_list = []
 
